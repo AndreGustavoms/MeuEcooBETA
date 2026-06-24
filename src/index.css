@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+
+/* Identidade visual Ecoo — acento esmeralda sobre base escura cinematográfica. */
+@theme {
+  --color-ecoo-50: #ecfdf5;
+  --color-ecoo-200: #a7f3d0;
+  --color-ecoo-400: #34d399;
+  --color-ecoo-500: #10b981;
+  --color-ecoo-600: #059669;
+  --color-ecoo-700: #047857;
+  --color-ink-900: #07100c;
+  --color-ink-800: #0b1712;
+  --color-ink-700: #122019;
+
+  --font-display: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ink-900 text-white antialiased;
+    font-family: var(--font-display);
+  }
+}
+
+/* Onda decorativa que separa as faixas, ecoando o nome da marca. */
+.ecoo-divider {
+  height: 8px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-ecoo-600),
+    var(--color-ecoo-400),
+    var(--color-ecoo-600),
+    transparent
+  );
+  opacity: 0.5;
+}
