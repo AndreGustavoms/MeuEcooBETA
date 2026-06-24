@@ -1,0 +1,19 @@
+#!/bin/sh
+msg=$(cat "$1")
+pattern='^(feat|fix|docs|style|refactor|test|chore)(\([^)]+\))?: .+'
+if ! echo "$msg" | grep -qE "$pattern"; then
+  echo ""
+  echo "[commit bloqueado] Mensagem fora do padrao Conventional Commits."
+  echo ""
+  echo "  Formato: tipo(escopo opcional): descricao"
+  echo "  Tipos validos: feat fix docs style refactor test chore"
+  echo ""
+  echo "  Exemplos:"
+  echo "    feat(auth): adiciona login com Google"
+  echo "    fix: corrige link quebrado em INSTALACAO"
+  echo "    docs: atualiza README com passos de deploy"
+  echo ""
+  echo "  Sua mensagem: $msg"
+  echo ""
+  exit 1
+fi
