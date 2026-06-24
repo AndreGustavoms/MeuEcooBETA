@@ -26,16 +26,133 @@
   }
 }
 
-/* Onda decorativa que separa as faixas, ecoando o nome da marca. */
-.ecoo-divider {
-  height: 8px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-ecoo-600),
-    var(--color-ecoo-400),
-    var(--color-ecoo-600),
-    transparent
-  );
-  opacity: 0.5;
+/* Animações */
+@keyframes ecoo-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ecoo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ecoo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-in {
+  animation: ecoo-fade-in 0.6s ease both;
+}
+
+.animate-rise {
+  animation: ecoo-rise 0.7s ease both;
+}
+
+.animate-spin-slow {
+  animation: ecoo-spin 1s linear infinite;
+}
+
+@keyframes ecoo-float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(-18px) scale(1.02); }
+}
+
+@keyframes ecoo-card-enter {
+  from { opacity: 0; transform: translateY(36px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+@keyframes ecoo-orb-pulse {
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50%       { opacity: 0.30; transform: scale(1.12); }
+}
+
+@keyframes ecoo-title-enter {
+  from { opacity: 0; transform: translateY(-16px); letter-spacing: 0.15em; }
+  to   { opacity: 1; transform: translateY(0);     letter-spacing: normal; }
+}
+
+.animate-float       { animation: ecoo-float 7s ease-in-out infinite; }
+.animate-card-enter  { animation: ecoo-card-enter 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.animate-orb-pulse   { animation: ecoo-orb-pulse 5s ease-in-out infinite; }
+.animate-title-enter { animation: ecoo-title-enter 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ── Camadas ambientes da tela de jornada ───────────────────────── */
+
+/* Camada 1 — gradiente orgânico em deriva lenta */
+@keyframes journey-drift {
+  0%,  100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%       { transform: translate3d(5%, -4%, 0) scale(1.1); }
+  66%       { transform: translate3d(-4%, 5%, 0) scale(0.94); }
+}
+.j-drift { animation: journey-drift 26s ease-in-out infinite; will-change: transform; }
+
+/* Camada 2 — partículas de evolução subindo */
+@keyframes journey-rise {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  12%  { opacity: var(--p-o, 0.5); }
+  88%  { opacity: var(--p-o, 0.5); }
+  100% { transform: translate3d(var(--p-x, 0px), -140px, 0); opacity: 0; }
+}
+.j-particle { animation: journey-rise var(--p-dur, 16s) linear infinite; animation-delay: var(--p-delay, 0s); will-change: transform, opacity; }
+
+/* Camada 3 — pulsos nas linhas neurais */
+@keyframes journey-line-pulse {
+  0%, 100% { opacity: 0.04; }
+  50%      { opacity: 0.20; }
+}
+.j-line { animation: journey-line-pulse var(--l-dur, 7s) ease-in-out infinite; animation-delay: var(--l-delay, 0s); }
+
+/* Curvas topográficas respirando lentamente */
+@keyframes journey-breathe {
+  0%, 100% { transform: scale(1);    opacity: 0.55; }
+  50%      { transform: scale(1.025); opacity: 0.8; }
+}
+.j-breathe { animation: journey-breathe 16s ease-in-out infinite; transform-origin: center; will-change: transform, opacity; }
+
+/* Respeita preferência de movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  .j-drift, .j-particle, .j-breathe,
+  .animate-float, .animate-orb-pulse { animation: none !important; }
+}
+
+/* Wordmark MeuEcoo: letras vazadas com contorno dourado e glow amarelo. */
+@keyframes ecoo-glow-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px rgba(245, 210, 90, 0.45))
+      drop-shadow(0 0 16px rgba(245, 210, 90, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(245, 210, 90, 0.7))
+      drop-shadow(0 0 26px rgba(245, 210, 90, 0.45));
+  }
+}
+
+.meuecoo-wordmark {
+  color: transparent;
+  -webkit-text-stroke: 1.4px #d9b94a;
+  text-shadow:
+    0 0 8px rgba(245, 210, 90, 0.55),
+    0 0 20px rgba(245, 210, 90, 0.35);
+  letter-spacing: -0.02em;
+  animation: ecoo-glow-pulse 3.5s ease-in-out infinite;
+}
+
+/* Contorno mais fino em tamanhos pequenos (navbar/perfis). */
+.meuecoo-wordmark.is-small {
+  -webkit-text-stroke-width: 1px;
 }

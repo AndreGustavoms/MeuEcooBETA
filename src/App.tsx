@@ -1,18 +1,14 @@
-import Hero from './components/Hero';
-import FeatureRow from './components/FeatureRow';
-import FaqAccordion from './components/FaqAccordion';
-import Footer from './components/Footer';
-import { features } from './data/content';
+import { useState } from 'react';
+import Profiles from './components/Profiles';
+import Browse from './components/Browse';
+import type { Profile } from './data/profiles';
 
 export default function App() {
-  return (
-    <>
-      <Hero />
-      {features.map((feature) => (
-        <FeatureRow key={feature.id} feature={feature} />
-      ))}
-      <FaqAccordion />
-      <Footer />
-    </>
-  );
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  if (!profile) {
+    return <Profiles onSelect={setProfile} />;
+  }
+
+  return <Browse profile={profile} onSwitch={() => setProfile(null)} />;
 }
