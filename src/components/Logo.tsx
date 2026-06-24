@@ -1,11 +1,10 @@
-/** Wordmark do Ecoo: o "o" duplo evoca as ondas de um eco. */
+/** Logo MeuEcoo — wordmark oficial (fundo removido, recortado do arquivo original). */
 export default function Logo({ className = '' }: { className?: string }) {
   return (
-    <span
-      className={`font-display text-2xl font-extrabold tracking-tight select-none ${className}`}
-    >
-      Ec
-      <span className="text-ecoo-400">oo</span>
-    </span>
+    <img
+      src="/meuecoo-logo.png"
+      alt="MeuEcoo"
+      className={`w-auto select-none object-contain ${className}`}
+    />
   );
 }
