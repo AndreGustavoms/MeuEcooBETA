@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2560 1440">
+  <defs>
+    <radialGradient id="bg" cx="55%" cy="46%" r="78%">
+      <stop offset="0%" stop-color="#2b2412"/>
+      <stop offset="60%" stop-color="#100e09"/>
+      <stop offset="100%" stop-color="#020302"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9a6f13"/>
+      <stop offset="45%" stop-color="#d9b94a"/>
+      <stop offset="100%" stop-color="#fff0a8"/>
+    </linearGradient>
+  </defs>
+  <rect width="2560" height="1440" fill="url(#bg)"/>
+  <text x="335" y="250" fill="#d9b94a" font-family="Poppins, Arial, sans-serif" font-size="52" font-weight="800" letter-spacing="10">BENEFICIOS VIP</text>
+  <g transform="translate(350 330)">
+    <rect width="1860" height="760" rx="52" fill="#090b08" stroke="#d9b94a" stroke-opacity=".18"/>
+    <g transform="translate(135 130)">
+      <rect width="480" height="500" rx="38" fill="url(#gold)"/>
+      <path d="M90 120h300M90 190h220M90 350h300" stroke="#120f05" stroke-opacity=".45" stroke-width="24" stroke-linecap="round"/>
+      <circle cx="380" cy="370" r="62" fill="#120f05" opacity=".18"/>
+      <text x="90" y="295" fill="#120f05" font-family="Poppins, Arial, sans-serif" font-size="74" font-weight="900">VIP</text>
+    </g>
+    <g transform="translate(760 145)">
+      <rect width="880" height="470" rx="42" fill="#12140f" stroke="#fff" stroke-opacity=".1"/>
+      <path d="M90 115h360M90 190h500M90 265h410M90 340h280" stroke="#fff" stroke-opacity=".26" stroke-width="24" stroke-linecap="round"/>
+      <rect x="620" y="94" width="160" height="160" rx="36" fill="#d9b94a" opacity=".88"/>
+      <path d="M660 174l35 35 70-92" stroke="#111" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

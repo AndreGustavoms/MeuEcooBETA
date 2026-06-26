@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2560 1440">
+  <defs>
+    <radialGradient id="bg" cx="45%" cy="48%" r="76%">
+      <stop offset="0%" stop-color="#24291d"/>
+      <stop offset="56%" stop-color="#0e110c"/>
+      <stop offset="100%" stop-color="#020302"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#b8961e"/>
+      <stop offset="100%" stop-color="#f5c861"/>
+    </linearGradient>
+  </defs>
+  <rect width="2560" height="1440" fill="url(#bg)"/>
+  <text x="330" y="245" fill="#d9b94a" font-family="Poppins, Arial, sans-serif" font-size="52" font-weight="800" letter-spacing="10">COMUNIDADE</text>
+  <g transform="translate(330 340)">
+    <rect width="1900" height="730" rx="52" fill="#0a0c09" stroke="#d9b94a" stroke-opacity=".18"/>
+    <g opacity=".95">
+      <circle cx="560" cy="340" r="96" fill="url(#gold)"/>
+      <circle cx="930" cy="250" r="74" fill="#d9b94a" opacity=".62"/>
+      <circle cx="1280" cy="380" r="86" fill="#d9b94a" opacity=".74"/>
+      <circle cx="1515" cy="225" r="58" fill="#fff" opacity=".18"/>
+      <path d="M635 330c96-42 176-58 224-56M1005 268c94 28 160 62 210 100M1360 342c74-72 118-96 176-112" stroke="#d9b94a" stroke-width="10" stroke-opacity=".48" stroke-linecap="round" fill="none"/>
+    </g>
+    <g transform="translate(210 505)">
+      <rect width="1480" height="92" rx="46" fill="#11150f" stroke="#fff" stroke-opacity=".08"/>
+      <rect x="28" y="22" width="280" height="48" rx="24" fill="#d9b94a"/>
+      <rect x="348" y="31" width="250" height="30" rx="15" fill="#fff" opacity=".18"/>
+      <rect x="638" y="31" width="330" height="30" rx="15" fill="#fff" opacity=".13"/>
+      <rect x="1010" y="31" width="230" height="30" rx="15" fill="#fff" opacity=".1"/>
+    </g>
+  </g>
+</svg>
