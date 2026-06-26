@@ -6,7 +6,7 @@ import type { Category } from '../data/catalog';
 function ClickableLogo({ onClick }: { onClick: () => void }) {
   return (
     <button onClick={onClick} className="cursor-pointer bg-transparent border-0 p-0" aria-label="MeuEcoo">
-      <Logo className="h-8 sm:h-9 block" />
+      <Logo className="block" style={{ height: '200px' }} />
     </button>
   );
 }
