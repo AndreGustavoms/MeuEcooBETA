@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import Profiles from './components/Profiles';
+import PerfilJornada from './components/Profiles';
 import Browse from './components/Browse';
-import type { Profile } from './data/profiles';
+import { profiles, type Profile } from './data/profiles';
+
+const PERFIL_JORNADA_RESERVADO = false;
+const defaultProfile = profiles[0] as Profile;
 
 export default function App() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-
-  if (!profile) {
-    return <Profiles onSelect={setProfile} />;
+  if (PERFIL_JORNADA_RESERVADO) {
+    return <PerfilJornada onSelect={() => undefined} />;
   }
 
-  return <Browse profile={profile} onSwitch={() => setProfile(null)} />;
+  return <Browse profile={defaultProfile} onSwitch={() => undefined} />;
 }

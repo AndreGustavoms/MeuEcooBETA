@@ -1,19 +1,102 @@
 import { useState, useEffect } from 'react';
+import styled from 'styled-components';
 import Navbar from './Navbar';
+import HomePresentation from './HomePresentation';
 import { featured, catalog, type Title, type Category } from '../data/catalog';
 import type { Profile } from '../data/profiles';
 
 /** Tela cheia de carregamento, exibida ao entrar num perfil. */
-function Loading({ profile }: { profile: Profile }) {
+function Loading() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-ink-900">
-      <span className="flex h-24 w-24 items-center justify-center rounded-xl bg-ink-700 text-5xl">
-        {profile.emoji}
-      </span>
-      <span className="h-10 w-10 rounded-full border-4 border-white/20 border-t-ecoo-400 animate-spin-slow" />
-    </div>
+    <LoadingWrapper>
+      <div className="loader" />
+    </LoadingWrapper>
   );
 }
+
+const LoadingWrapper = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050505;
+
+  .loader {
+    position: relative;
+    font-size: 16px;
+    width: 5.5em;
+    height: 5.5em;
+  }
+
+  .loader:before {
+    content: "";
+    position: absolute;
+    transform: translate(-50%, -50%) rotate(45deg);
+    height: 100%;
+    width: 4px;
+    background: #ffffff;
+    left: 50%;
+    top: 50%;
+  }
+
+  .loader:after {
+    content: "";
+    position: absolute;
+    left: 0.2em;
+    bottom: 0.18em;
+    width: 1em;
+    height: 1em;
+    background-color: rgba(206, 152, 4, 0.986);
+    border-radius: 15%;
+    animation: rollingRock 2.5s cubic-bezier(0.79, 0, 0.47, 0.97) infinite;
+  }
+
+  @keyframes rollingRock {
+    0% {
+      transform: translate(0, -1em) rotate(-45deg);
+    }
+
+    5% {
+      transform: translate(0, -1em) rotate(-50deg);
+    }
+
+    20% {
+      transform: translate(1em, -2em) rotate(47deg);
+    }
+
+    25% {
+      transform: translate(1em, -2em) rotate(45deg);
+    }
+
+    30% {
+      transform: translate(1em, -2em) rotate(40deg);
+    }
+
+    45% {
+      transform: translate(2em, -3em) rotate(137deg);
+    }
+
+    50% {
+      transform: translate(2em, -3em) rotate(135deg);
+    }
+
+    55% {
+      transform: translate(2em, -3em) rotate(130deg);
+    }
+
+    70% {
+      transform: translate(3em, -4em) rotate(217deg);
+    }
+
+    75% {
+      transform: translate(3em, -4em) rotate(220deg);
+    }
+
+    100% {
+      transform: translate(0, -1em) rotate(-225deg);
+    }
+  }
+`;
 
 /** Modal de detalhe do título. */
 function DetailModal({ title, onClose }: { title: Title; onClose: () => void }) {
@@ -81,7 +164,7 @@ export default function Browse({
   profile: Profile;
   onSwitch: () => void;
 }) {
-  const [category, setCategory] = useState<Category>('cursos');
+  const [category, setCategory] = useState<Category>('home');
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Title | null>(null);
 
@@ -90,7 +173,13 @@ export default function Browse({
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) return <Loading profile={profile} />;
+  if (loading) return <Loading />;
+
+  if (category === 'home') return (
+    <div className="min-h-screen bg-ink-900 animate-fade-in">
+      <HomePresentation onNavigate={setCategory} />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-ink-900 pb-12 animate-fade-in">
@@ -106,7 +195,7 @@ export default function Browse({
         {/* Gradiente escurecedor */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(4,12,6,0.38), rgba(4,12,6,0.08), rgba(4,12,6,0.96))' }}
+          style={{ background: 'linear-gradient(to bottom, rgba(5,5,5,0.38), rgba(5,5,5,0.08), rgba(5,5,5,0.96))' }}
         />
         {/* Conteúdo sobre a imagem */}
         <div className="relative z-10">
@@ -115,6 +204,7 @@ export default function Browse({
             category={category}
             onCategory={setCategory}
             onSwitch={onSwitch}
+            onHome={() => { setCategory('home'); setSelected(null); }}
           />
 
           <div className="w-full translate-y-[220px] px-6 pt-[360px] pb-[320px] sm:w-1/2 sm:px-14 animate-rise">

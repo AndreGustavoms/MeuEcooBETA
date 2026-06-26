@@ -127,6 +127,8 @@ const miniapps: Row[] = [
   },
 ];
 
-export type Category = 'cursos' | 'miniapps';
+export type Category = 'cursos' | 'miniapps' | 'home';
 
-export const catalog: Record<Category, Row[]> = { cursos, miniapps };
+const home: Row[] = [];
+
+export const catalog: Record<Category, Row[]> = { home, cursos, miniapps };
