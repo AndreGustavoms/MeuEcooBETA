@@ -111,7 +111,7 @@ function DetailModal({ title, onClose }: { title: Title; onClose: () => void }) 
       >
         <div className="relative">
           <img
-            src={title.image.replace('small.jpg', 'large.jpg')}
+            src={title.image}
             alt={title.name}
             className="h-72 w-full object-cover"
           />
@@ -126,10 +126,10 @@ function DetailModal({ title, onClose }: { title: Title; onClose: () => void }) 
         <div className="p-6">
           <h3 className="text-2xl font-bold">{title.name}</h3>
           <p className="mt-3 text-white/70">
-            Um título disponível no catálogo Ecoo. Aperte assistir e mergulhe na história.
+            Um item disponivel no catalogo MeuEcoo. Abra, aplique e acompanhe sua evolucao.
           </p>
           <button className="mt-5 rounded-md bg-ecoo-500 px-6 py-2.5 font-semibold text-ink-900 transition hover:bg-ecoo-400">
-            ▶ Assistir
+            Abrir
           </button>
         </div>
       </div>
@@ -147,7 +147,7 @@ function CardItem({ title, onOpen }: { title: Title; onOpen: () => void }) {
         src={title.image}
         alt={title.name}
         loading="lazy"
-        className="w-[180px] rounded-sm object-cover sm:w-[260px]"
+        className="aspect-video w-[180px] rounded-sm object-cover sm:w-[260px]"
       />
       <div className="absolute bottom-0 hidden w-full bg-black/70 p-2 text-left group-hover/item:block">
         <p className="text-xs font-bold text-white">{title.name}</p>
@@ -218,13 +218,13 @@ export default function Browse({
               onClick={() =>
                 setSelected({
                   id: 24033,
-                  name: 'La La Land',
-                  image: '/images/films/romance/la-la-land/small.jpg',
+                  name: featured.name,
+                  image: featured.background,
                 })
               }
               className="mt-4 max-w-[150px] cursor-pointer rounded-md bg-[#e6e6e6] px-5 py-2.5 text-xl font-bold text-black shadow-lg transition hover:bg-ecoo-500 hover:text-white"
             >
-              ▶ Assistir
+              Explorar
             </button>
           </div>
         </div>
