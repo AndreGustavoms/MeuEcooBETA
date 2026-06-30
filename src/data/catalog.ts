@@ -1,3 +1,5 @@
+import { publicAsset } from '../lib/publicAsset';
+
 export type Title = {
   id: number;
   name: string;
@@ -16,14 +18,14 @@ export type Featured = {
 };
 
 const visuals = {
-  cursos: '/images/flash/flash-cursos.svg',
-  miniapps: '/images/flash/flash-miniapps.svg',
-  rotina: '/images/flash/flash-rotina.svg',
-  foco: '/images/flash/flash-foco.svg',
-  comunidade: '/images/flash/flash-comunidade.svg',
-  beneficios: '/images/flash/flash-beneficios.svg',
-  catalogo: '/images/flash/flash-catalogo.svg',
-  painel: '/images/flash/flash-dashboard.svg',
+  cursos: publicAsset('/images/flash/flash-cursos.svg'),
+  miniapps: publicAsset('/images/flash/flash-miniapps.svg'),
+  rotina: publicAsset('/images/flash/flash-rotina.svg'),
+  foco: publicAsset('/images/flash/flash-foco.svg'),
+  comunidade: publicAsset('/images/flash/flash-comunidade.svg'),
+  beneficios: publicAsset('/images/flash/flash-beneficios.svg'),
+  catalogo: publicAsset('/images/flash/flash-catalogo.svg'),
+  painel: publicAsset('/images/flash/flash-dashboard.svg'),
 } as const;
 
 export const featured: Featured = {
