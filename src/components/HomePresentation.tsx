@@ -1,34 +1,61 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import type { Category } from '../data/catalog';
 import Logo from './Logo';
+import { publicAsset } from '../lib/publicAsset';
 
-const flashFrames = [
-  { src: '/images/flash/flash-cursos.svg', label: 'Cursos', title: 'Aulas guiadas', detail: 'Foco, rotina, carreira e bem-estar' },
-  { src: '/images/flash/flash-miniapps.svg', label: 'Mini Apps', title: 'Ferramentas práticas', detail: 'Timers, hábitos, planejamento e finanças' },
-  { src: '/images/flash/flash-rotina.svg', label: 'Rotina', title: 'Progresso visível', detail: 'Check-ins, streaks e metas acionáveis' },
-  { src: '/images/flash/flash-foco.svg', label: 'Foco', title: 'Modo execução', detail: 'Ambientes para aprender e aplicar' },
-  { src: '/images/flash/flash-comunidade.svg', label: 'Comunidade', title: 'Evolução em grupo', detail: 'Desafios, ranking, mentorias e lives' },
-  { src: '/images/flash/flash-beneficios.svg', label: 'VIP', title: 'Benefícios reais', detail: 'Conteúdos, descontos e experiências exclusivas' },
-  { src: '/images/flash/flash-catalogo.svg', label: 'Catálogo', title: 'Tudo em um lugar', detail: 'Cursos e ferramentas com cara de streaming' },
-  { src: '/images/flash/flash-dashboard.svg', label: 'Painel', title: 'Seu hub pessoal', detail: 'Acompanhe, escolha e continue' },
-  { src: '/images/flash/flash-cursos.svg', label: 'Cursos', title: 'Aulas guiadas', detail: 'Foco, rotina, carreira e bem-estar' },
-  { src: '/images/flash/flash-miniapps.svg', label: 'Mini Apps', title: 'Ferramentas práticas', detail: 'Timers, hábitos, planejamento e finanças' },
-  { src: '/images/flash/flash-rotina.svg', label: 'Rotina', title: 'Progresso visível', detail: 'Check-ins, streaks e metas acionáveis' },
-  { src: '/images/flash/flash-foco.svg', label: 'Foco', title: 'Modo execução', detail: 'Ambientes para aprender e aplicar' },
-  { src: '/images/flash/flash-comunidade.svg', label: 'Comunidade', title: 'Evolução em grupo', detail: 'Desafios, ranking, mentorias e lives' },
-  { src: '/images/flash/flash-beneficios.svg', label: 'VIP', title: 'Benefícios reais', detail: 'Conteúdos, descontos e experiências exclusivas' },
-  { src: '/images/flash/flash-catalogo.svg', label: 'Catálogo', title: 'Tudo em um lugar', detail: 'Cursos e ferramentas com cara de streaming' },
-  { src: '/images/flash/flash-dashboard.svg', label: 'Painel', title: 'Seu hub pessoal', detail: 'Acompanhe, escolha e continue' },
+// 24 frames interleaved across both image folders for maximum visual variety
+const flashImages = [
+  publicAsset('/images/growth/flash-native/discipline.jpg'),
+  publicAsset('/images/growth/reading.jpg'),
+  publicAsset('/images/growth/flash-native/ambition.jpg'),
+  publicAsset('/images/growth/mindset.jpg'),
+  publicAsset('/images/growth/flash-native/fitness.jpg'),
+  publicAsset('/images/growth/planning.jpg'),
+  publicAsset('/images/growth/flash-native/leadership.jpg'),
+  publicAsset('/images/growth/consistency.jpg'),
+  publicAsset('/images/growth/flash-native/goals.jpg'),
+  publicAsset('/images/growth/evolution.jpg'),
+  publicAsset('/images/growth/flash-native/learning.jpg'),
+  publicAsset('/images/growth/flash-native/purpose.jpg'),
+  publicAsset('/images/growth/flash-native/achievement.jpg'),
+  publicAsset('/images/growth/online-learning.jpg'),
+  publicAsset('/images/growth/flash-native/balance.jpg'),
+  publicAsset('/images/growth/gratitude.jpg'),
+  publicAsset('/images/growth/flash-native/reading.jpg'),
+  publicAsset('/images/growth/discipline.jpg'),
+  publicAsset('/images/growth/flash-native/evolution.jpg'),
+  publicAsset('/images/growth/fitness.jpg'),
+  publicAsset('/images/growth/flash-native/planning.jpg'),
+  publicAsset('/images/growth/leadership.jpg'),
+  publicAsset('/images/growth/flash-native/online-learning.jpg'),
+  publicAsset('/images/growth/achievement.jpg'),
 ];
 
-const flashImages = flashFrames.slice(0, 8).map(({ src }) => src);
-
-const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+// Predetermined zoom origin per frame — each image pushes from a different angle
+const zoomOrigins: [number, number][] = [
+  [0.50, 0.50], [0.34, 0.42], [0.66, 0.40], [0.50, 0.62],
+  [0.38, 0.50], [0.62, 0.46], [0.50, 0.36], [0.44, 0.56],
+  [0.56, 0.44], [0.28, 0.50], [0.72, 0.50], [0.50, 0.66],
+  [0.46, 0.40], [0.54, 0.60], [0.36, 0.46], [0.64, 0.54],
+  [0.50, 0.50], [0.40, 0.38], [0.60, 0.62], [0.50, 0.54],
+  [0.44, 0.44], [0.56, 0.56], [0.50, 0.44], [0.50, 0.56],
+];
+const easeInOut = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
 
 function FlashbackOverlay({ onDone }: { onDone: () => void }) {
   const [dissolving, setDissolving] = useState(false);
   const [canvasReady, setCanvasReady] = useState(false);
+  const [phase, setPhase] = useState<'frames' | 'converging'>('frames');
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const particlesRef = useRef(
+    Array.from({ length: 22 }, () => ({
+      x: Math.round(Math.random() * 100),
+      y: Math.round(Math.random() * 100),
+      size: +(1.2 + Math.random() * 1.8).toFixed(1),
+      delay: +(Math.random() * 5).toFixed(2),
+      dur: +(5 + Math.random() * 6).toFixed(1),
+    }))
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -40,15 +67,15 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
 
     const gl = canvas.getContext('webgl', {
       alpha: true,
-      antialias: false,
+      antialias: true,
       premultipliedAlpha: false,
     });
 
     if (!gl) {
       finishTimer = setTimeout(() => {
         setDissolving(true);
-        finishTimer = setTimeout(onDone, 900);
-      }, 900);
+        finishTimer = setTimeout(onDone, 450);
+      }, 1600);
       return () => {
         if (finishTimer) clearTimeout(finishTimer);
       };
@@ -76,6 +103,8 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
       uniform vec2 uCanvasSize;
       uniform vec2 uActiveSize;
       uniform vec2 uNextSize;
+      uniform vec2 uActiveOrigin;
+      uniform vec2 uNextOrigin;
 
       vec2 coverUv(vec2 uv, vec2 imageSize, vec2 canvasSize) {
         vec2 scale = canvasSize / imageSize;
@@ -87,22 +116,29 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
 
       void main() {
         vec2 uvActive = coverUv(vUv, uActiveSize, uCanvasSize);
-        vec2 uvNext = coverUv(vUv, uNextSize, uCanvasSize);
+        vec2 uvNext   = coverUv(vUv, uNextSize,   uCanvasSize);
 
-        float progress0 = uProgress;
-        float progress1 = 1.0 - uProgress;
+        float e = uProgress * uProgress * (3.0 - 2.0 * uProgress);
 
-        vec4 dispActive = texture2D(uTextureActive, uvActive);
-        vec4 dispNext = texture2D(uTextureNext, uvNext);
+        vec2 uvA = (uvActive - uActiveOrigin) * (1.0 + (1.0 - e) * 0.07) + uActiveOrigin;
+        vec2 uvN = (uvNext   - uNextOrigin)   / (1.0 + e * 0.055)         + uNextOrigin;
 
-        float verticalNoise = sin((vUv.y + uProgress * 0.75) * 34.0 + dispNext.r * 5.0) * 0.018;
-        float activeBend = progress1 * ((dispNext.r * 0.32) + verticalNoise) * 2.0;
-        float nextBend = progress0 * ((dispActive.r * 0.26) - verticalNoise) * 2.0;
+        vec4 colA = texture2D(uTextureActive, uvA);
+        vec4 colN = texture2D(uTextureNext,   uvN);
 
-        vec4 colorActive = texture2D(uTextureActive, vec2(uvActive.x, uvActive.y + activeBend)) * progress1;
-        vec4 colorNext = texture2D(uTextureNext, vec2(uvNext.x, uvNext.y - nextBend)) * progress0;
+        // Snap cut: transition only in middle 22% of frame time
+        float blend = clamp((uProgress - 0.39) * 4.5, 0.0, 1.0);
+        vec3 color = mix(colA.rgb, colN.rgb, blend);
 
-        gl_FragColor = vec4((colorActive + colorNext).rgb, 1.0);
+        // Gamma lift — makes images pop like projected film
+        color = pow(max(color, 0.0), vec3(0.88));
+
+        // Quadratic vignette (clean, no edge-case issues)
+        vec2 center = vUv - 0.5;
+        float vig = 1.0 - dot(center * vec2(1.5, 0.95), center * vec2(1.5, 0.95));
+        color *= clamp(vig * 0.35 + 0.65, 0.0, 1.0);
+
+        gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
       }
     `;
 
@@ -151,16 +187,17 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
       if (!texture) throw new Error('Unable to create WebGL texture');
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+      gl.generateMipmap(gl.TEXTURE_2D);
       return texture;
     };
 
     const resize = () => {
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const ratio = Math.min(window.devicePixelRatio || 1, 3);
       const width = Math.max(1, Math.floor(canvas.clientWidth * ratio));
       const height = Math.max(1, Math.floor(canvas.clientHeight * ratio));
       if (canvas.width !== width || canvas.height !== height) {
@@ -212,13 +249,15 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
           canvasSize: gl.getUniformLocation(program, 'uCanvasSize'),
           activeSize: gl.getUniformLocation(program, 'uActiveSize'),
           nextSize: gl.getUniformLocation(program, 'uNextSize'),
+          activeOrigin: gl.getUniformLocation(program, 'uActiveOrigin'),
+          nextOrigin: gl.getUniformLocation(program, 'uNextOrigin'),
         };
 
         let currentIndex = 0;
         let nextIndex = 1;
         let start = performance.now();
-        const duration = 720;
-        const hold = 80;
+        const duration = 48;
+        const hold = 72;
         let readyReported = false;
 
         const draw = (progress: number) => {
@@ -238,6 +277,10 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
           gl.uniform2f(uniforms.canvasSize, canvas.width, canvas.height);
           gl.uniform2f(uniforms.activeSize, sizes[currentIndex].width, sizes[currentIndex].height);
           gl.uniform2f(uniforms.nextSize, sizes[nextIndex].width, sizes[nextIndex].height);
+          const ao = zoomOrigins[currentIndex % zoomOrigins.length];
+          const no = zoomOrigins[nextIndex % zoomOrigins.length];
+          gl.uniform2f(uniforms.activeOrigin, ao[0], ao[1]);
+          gl.uniform2f(uniforms.nextOrigin, no[0], no[1]);
           gl.drawArrays(gl.TRIANGLES, 0, 6);
         };
 
@@ -245,7 +288,7 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
           if (stopped) return;
 
           const rawProgress = Math.min(1, Math.max(0, (now - start) / duration));
-          draw(easeOutCubic(rawProgress));
+          draw(easeInOut(rawProgress));
 
           if (!readyReported) {
             readyReported = true;
@@ -257,8 +300,11 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
             nextIndex += 1;
 
             if (nextIndex >= textures.length) {
-              setDissolving(true);
-              finishTimer = setTimeout(onDone, 900);
+              setPhase('converging');
+              finishTimer = setTimeout(() => {
+                setDissolving(true);
+                finishTimer = setTimeout(onDone, 450);
+              }, 1000);
               return;
             }
 
@@ -273,8 +319,8 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
         if (stopped) return;
         finishTimer = setTimeout(() => {
           setDissolving(true);
-          finishTimer = setTimeout(onDone, 900);
-        }, 900);
+          finishTimer = setTimeout(onDone, 450);
+        }, 500);
       }
     };
 
@@ -296,10 +342,10 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[40] pointer-events-none"
+      className="fixed inset-0 z-[80] pointer-events-none"
       style={{
         opacity: dissolving ? 0 : 1,
-        transition: dissolving ? 'opacity 0.9s cubic-bezier(0.4,0,0.2,1)' : 'none',
+        transition: dissolving ? 'opacity 0.45s cubic-bezier(0.4,0,0.2,1)' : 'none',
       }}
     >
       <div
@@ -307,8 +353,8 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
         style={{
           backgroundImage: `url(${flashImages[0]})`,
           opacity: canvasReady ? 0 : 1,
-          filter: 'brightness(0.82) contrast(1.08) saturate(1.05)',
-          transform: 'scale(1.08)',
+          filter: 'brightness(1.0) contrast(1.0) saturate(1.0)',
+          transform: 'scale(1)',
           transition: 'opacity 0.2s ease-out',
         }}
       />
@@ -317,71 +363,87 @@ function FlashbackOverlay({ onDone }: { onDone: () => void }) {
         className="absolute inset-0 h-full w-full"
         style={{
           display: 'block',
-          filter: 'brightness(0.86) contrast(1.08) saturate(1.05)',
+          filter: 'brightness(1.0) contrast(1.0) saturate(1.0)',
+          opacity: phase === 'converging' ? 0 : 1,
+          transition: phase === 'converging' ? 'opacity 1.3s ease-in-out' : 'none',
         }}
       />
       <div className="absolute inset-0" style={{
-        background: 'linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.08) 40%, rgba(0,0,0,0.58) 100%)',
+        background: 'linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.0) 20%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.38) 100%)',
       }} />
+
+      {/* Letterbox — timeline of evolution */}
+      <div className="letterbox letterbox-top" aria-hidden="true">
+        <div className="lb-ticker">
+          <span>
+            APRENDER&nbsp;·&nbsp;CRESCER&nbsp;·&nbsp;DISCIPLINA&nbsp;·&nbsp;FOCO&nbsp;·&nbsp;CRIAR&nbsp;·&nbsp;LIDERAR&nbsp;·&nbsp;CONQUISTA&nbsp;·&nbsp;EVOLUIR&nbsp;·&nbsp;
+            APRENDER&nbsp;·&nbsp;CRESCER&nbsp;·&nbsp;DISCIPLINA&nbsp;·&nbsp;FOCO&nbsp;·&nbsp;CRIAR&nbsp;·&nbsp;LIDERAR&nbsp;·&nbsp;CONQUISTA&nbsp;·&nbsp;EVOLUIR&nbsp;·&nbsp;
+          </span>
+        </div>
+        <div className="letterbox-rule" />
+      </div>
+      <div className="letterbox letterbox-bottom" aria-hidden="true">
+        <div className="letterbox-rule" />
+        <div className="lb-ticker lb-ticker-rev">
+          <span>
+            PROPÓSITO&nbsp;·&nbsp;CONSISTÊNCIA&nbsp;·&nbsp;AMBIÇÃO&nbsp;·&nbsp;MAESTRIA&nbsp;·&nbsp;VISÃO&nbsp;·&nbsp;IMPACTO&nbsp;·&nbsp;EXCELÊNCIA&nbsp;·&nbsp;LEGADO&nbsp;·&nbsp;
+            PROPÓSITO&nbsp;·&nbsp;CONSISTÊNCIA&nbsp;·&nbsp;AMBIÇÃO&nbsp;·&nbsp;MAESTRIA&nbsp;·&nbsp;VISÃO&nbsp;·&nbsp;IMPACTO&nbsp;·&nbsp;EXCELÊNCIA&nbsp;·&nbsp;LEGADO&nbsp;·&nbsp;
+          </span>
+        </div>
+      </div>
+
+      <div className="cinematic-copy cinematic-copy-left" aria-hidden="true">
+        <span>MEUECOO</span>
+        <strong>EVOLUÇÃO</strong>
+      </div>
+      <div className="cinematic-copy cinematic-copy-right" aria-hidden="true">
+        <span>CURSOS · FERRAMENTAS</span>
+        <strong>PROPÓSITO</strong>
+      </div>
+
+      <div className="particles-layer" aria-hidden="true">
+        {particlesRef.current.map((p, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              animationDelay: `${p.delay}s`,
+              animationDuration: `${p.dur}s`,
+            } as React.CSSProperties}
+          />
+        ))}
+      </div>
+
+      <div className={`convergence-overlay${phase === 'converging' ? ' is-active' : ''}`} aria-hidden="true">
+        <p className="tagline-text">Seu melhor projeto é você.</p>
+      </div>
+
     </div>
   );
 }
 
-const cols = [
-  [
-    '/images/films/thriller/joker/small.jpg',
-    '/images/films/drama/fight-club/small.jpg',
-    '/images/films/suspense/prisoners/small.jpg',
-    '/images/films/drama/the-revenant/small.jpg',
-    '/images/films/thriller/black-swan/small.jpg',
-    '/images/films/suspense/shutter-island/small.jpg',
-    '/images/films/romance/la-la-land/small.jpg',
-  ],
-  [
-    '/images/series/crime/making-a-murderer/small.jpg',
-    '/images/films/drama/the-prestige/small.jpg',
-    '/images/films/suspense/gone-girl/small.jpg',
-    '/images/films/thriller/nightcrawler/small.jpg',
-    '/images/films/drama/the-social-network/small.jpg',
-    '/images/films/suspense/seven/small.jpg',
-    '/images/films/romance/a-star-is-born/small.jpg',
-  ],
-  [
-    '/images/films/thriller/a-quiet-place/small.jpg',
-    '/images/films/drama/kings-speech/small.jpg',
-    '/images/films/suspense/zodiac/small.jpg',
-    '/images/series/crime/the-staircase/small.jpg',
-    '/images/films/romance/titanic/small.jpg',
-    '/images/films/thriller/the-silence-of-the-lambs/small.jpg',
-    '/images/films/romance/blue-valentine/small.jpg',
-  ],
-  [
-    '/images/films/drama/fight-club/small.jpg',
-    '/images/films/children/spirited-away/small.jpg',
-    '/images/series/crime/the-innocent-man/small.jpg',
-    '/images/films/children/up/small.jpg',
-    '/images/series/documentaries/citizenfour/small.jpg',
-    '/images/films/thriller/joker/small.jpg',
-    '/images/films/suspense/prisoners/small.jpg',
-  ],
-  [
-    '/images/series/comedies/the-office/small.jpg',
-    '/images/films/drama/the-revenant/small.jpg',
-    '/images/series/crime/making-a-murderer/small.jpg',
-    '/images/films/romance/la-la-land/small.jpg',
-    '/images/films/thriller/black-swan/small.jpg',
-    '/images/films/drama/the-prestige/small.jpg',
-    '/images/films/suspense/shutter-island/small.jpg',
-  ],
+// 15 panels for the cinematic 5×3 film-grid background
+const filmGrid = [
+  { src: publicAsset('/images/growth/flash-native/discipline.jpg'),      dur: 12, delay: 0.0 },
+  { src: publicAsset('/images/growth/reading.jpg'),                       dur:  9, delay: 1.8 },
+  { src: publicAsset('/images/growth/flash-native/mindset.jpg'),          dur: 15, delay: 0.4 },
+  { src: publicAsset('/images/growth/planning.jpg'),                      dur: 10, delay: 3.1 },
+  { src: publicAsset('/images/growth/flash-native/fitness.jpg'),          dur: 13, delay: 0.9 },
+  { src: publicAsset('/images/growth/flash-native/ambition.jpg'),         dur:  8, delay: 2.5 },
+  { src: publicAsset('/images/growth/balance.jpg'),                       dur: 16, delay: 1.2 },
+  { src: publicAsset('/images/growth/flash-native/consistency.jpg'),      dur: 11, delay: 4.0 },
+  { src: publicAsset('/images/growth/flash-native/goals.jpg'),            dur:  9, delay: 0.6 },
+  { src: publicAsset('/images/growth/online-learning.jpg'),               dur: 14, delay: 3.5 },
+  { src: publicAsset('/images/growth/flash-native/leadership.jpg'),       dur: 10, delay: 1.5 },
+  { src: publicAsset('/images/growth/purpose.jpg'),                       dur: 12, delay: 2.2 },
+  { src: publicAsset('/images/growth/flash-native/evolution.jpg'),        dur:  8, delay: 0.8 },
+  { src: publicAsset('/images/growth/achievement.jpg'),                   dur: 15, delay: 4.8 },
+  { src: publicAsset('/images/growth/flash-native/gratitude.jpg'),        dur: 11, delay: 1.0 },
 ];
-
-const colConfig = [
-  { duration: 110, direction: 'up' },
-  { duration: 85,  direction: 'down' },
-  { duration: 70,  direction: 'up' },
-  { duration: 85,  direction: 'down' },
-  { duration: 110, direction: 'up' },
-] as const;
 
 const features = [
   {
@@ -428,7 +490,7 @@ const features = [
 void features;
 
 export default function HomePresentation({ onNavigate }: { onNavigate: (c: Category) => void }) {
-  const [flashDone, setFlashDone] = useState(false);
+  const [phase, setPhase] = useState<'intro' | 'main'>('intro');
   const [ctaHover, setCtaHover] = useState<'cursos' | 'apps' | null>(null);
 
   useEffect(() => {
@@ -436,117 +498,135 @@ export default function HomePresentation({ onNavigate }: { onNavigate: (c: Categ
     return () => { document.body.style.overflow = ''; };
   }, []);
 
-  const fade = (delay = 0) => ({
-    opacity: flashDone ? 1 : 0,
-    transform: flashDone ? 'translateY(0)' : 'translateY(12px)',
-    transition: flashDone ? `opacity 0.7s ${delay}s ease-out, transform 0.7s ${delay}s ease-out` : 'none',
-  });
+  useEffect(() => {
+    const t = setTimeout(() => setPhase('main'), 2100);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <div style={{ height: '100vh', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ height: '100vh', overflow: 'hidden', position: 'relative', background: '#07060c' }}>
 
-      {!flashDone && <FlashbackOverlay onDone={() => setFlashDone(true)} />}
+      {/* ── Logo flutuante — desliza do centro (intro) para 34% (main) ── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          zIndex: 95,
+          pointerEvents: 'none',
+          left: '50%',
+          top: phase === 'main' ? '34%' : '50%',
+          transform: 'translate(-50%, -50%)',
+          transition: phase === 'main'
+            ? 'top 1.2s cubic-bezier(0.16,1,0.3,1)'
+            : 'none',
+        }}
+      >
+        <Logo className="h-[clamp(9rem,25vw,22rem)] max-w-[94vw]" />
+      </div>
 
-      <div className="relative flex items-center justify-center text-center" style={{ height: '100%' }}>
-
-        {/* Background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute bg-cover bg-center bg-no-repeat"
-            style={{
-              inset: -18,
-              backgroundImage: 'url(/images/misc/home-bg.jpg)',
-              brightness: 1,
-              filter: 'brightness(0.64) saturate(1.05) blur(3px)',
-              imageRendering: 'auto',
-              transform: 'scale(1.02)',
-            } as React.CSSProperties}
-          />
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="flex gap-3 h-full items-start" style={{ marginTop: '-5%' }}>
-              {cols.map((col, ci) => {
-                const { duration, direction } = colConfig[ci];
-                const anim = direction === 'up'
-                  ? `home-up ${duration}s linear infinite`
-                  : `home-down ${duration}s linear infinite`;
-                return (
-                  <div
-                    key={ci}
-                    className="flex flex-col gap-3 shrink-0"
-                    style={{ width: '20vw', minWidth: 140, animation: anim, willChange: 'transform' }}
-                  >
-                    {[...col, ...col].map((src, i) => (
-                      <img
-                        key={i} src={src} alt="" draggable={false}
-                        className="w-full rounded-md object-cover select-none"
-                        style={{
-                          aspectRatio: '2/3',
-                          opacity: 0.12,
-                          imageRendering: 'auto',
-                          filter: 'blur(2.6px) brightness(1.05) saturate(1)',
-                          transform: 'scale(1.025)',
-                        }}
-                      />
-                    ))}
-                  </div>
-                );
-              })}
-            </div>
+      {/* ── Intro overlay: letterbox + corner texts, fades out after 2s ── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute', inset: 0, zIndex: 20,
+          opacity: phase === 'intro' ? 1 : 0,
+          transition: 'opacity 0.65s ease-out',
+          pointerEvents: 'none',
+        }}
+      >
+        <div className="letterbox letterbox-top">
+          <div className="lb-ticker">
+            <span>APRENDER&nbsp;·&nbsp;CRESCER&nbsp;·&nbsp;DISCIPLINA&nbsp;·&nbsp;FOCO&nbsp;·&nbsp;CRIAR&nbsp;·&nbsp;LIDERAR&nbsp;·&nbsp;CONQUISTA&nbsp;·&nbsp;EVOLUIR&nbsp;·&nbsp;APRENDER&nbsp;·&nbsp;CRESCER&nbsp;·&nbsp;DISCIPLINA&nbsp;·&nbsp;FOCO&nbsp;·&nbsp;CRIAR&nbsp;·&nbsp;LIDERAR&nbsp;·&nbsp;CONQUISTA&nbsp;·&nbsp;EVOLUIR&nbsp;·&nbsp;</span>
           </div>
-          <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(8,8,8,0.3) 0%, rgba(8,8,8,0.6) 60%, rgba(8,8,8,0.86) 100%)',
-          }} />
-          <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to bottom, rgba(8,8,8,0.5) 0%, transparent 25%, transparent 75%, rgba(8,8,8,0.72) 100%)',
-          }} />
+          <div className="letterbox-rule" />
         </div>
+        <div className="letterbox letterbox-bottom">
+          <div className="letterbox-rule" />
+          <div className="lb-ticker lb-ticker-rev">
+            <span>PROPÓSITO&nbsp;·&nbsp;CONSISTÊNCIA&nbsp;·&nbsp;AMBIÇÃO&nbsp;·&nbsp;MAESTRIA&nbsp;·&nbsp;VISÃO&nbsp;·&nbsp;IMPACTO&nbsp;·&nbsp;EXCELÊNCIA&nbsp;·&nbsp;LEGADO&nbsp;·&nbsp;PROPÓSITO&nbsp;·&nbsp;CONSISTÊNCIA&nbsp;·&nbsp;AMBIÇÃO&nbsp;·&nbsp;MAESTRIA&nbsp;·&nbsp;VISÃO&nbsp;·&nbsp;IMPACTO&nbsp;·&nbsp;EXCELÊNCIA&nbsp;·&nbsp;LEGADO&nbsp;·&nbsp;</span>
+          </div>
+        </div>
+        <div className="cinematic-copy cinematic-copy-left">
+          <span>MEUECOO</span>
+          <strong>EVOLUÇÃO</strong>
+        </div>
+        <div className="cinematic-copy cinematic-copy-right">
+          <span>CURSOS&nbsp;·&nbsp;FERRAMENTAS</span>
+          <strong>ASCENSÃO</strong>
+        </div>
+      </div>
 
-        {/* Corner watermarks */}
-        {/* Main content */}
+      {/* ── Cinematic film-grid background ── */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
         <div style={{
-          position: 'relative', zIndex: 50,
-          display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-          width: '100%', padding: '0 clamp(1rem, 5vw, 4rem)',
-          transform: flashDone ? 'scale(1)' : 'scale(1.03)',
-          filter: flashDone ? 'blur(0)' : 'blur(0.5px)',
-          transition: flashDone ? 'transform 1.4s cubic-bezier(0.16,1,0.3,1), filter 1.2s cubic-bezier(0.16,1,0.3,1)' : 'none',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(5, 1fr)',
+          gridTemplateRows: 'repeat(3, 1fr)',
+          gap: '3px',
+          width: '100%',
+          height: '100%',
         }}>
+          {filmGrid.map((p, i) => (
+            <div key={i} style={{ overflow: 'hidden' }}>
+              <img
+                src={p.src} alt="" draggable={false}
+                style={{
+                  width: '100%', height: '100%',
+                  objectFit: 'cover', objectPosition: 'center',
+                  display: 'block',
+                  filter: 'brightness(0.55) saturate(0.72) contrast(1.25)',
+                  animation: `panel-pulse ${p.dur}s ${p.delay}s ease-in-out infinite`,
+                  willChange: 'opacity',
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        {/* Vignette + readability overlay */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse 88% 82% at 50% 46%, rgba(7,6,12,0.22) 0%, rgba(7,6,12,0.58) 62%, rgba(7,6,12,0.85) 100%)',
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to bottom, rgba(7,6,12,0.52) 0%, transparent 18%, transparent 74%, rgba(7,6,12,0.65) 100%)',
+        }} />
+      </div>
 
-          {/* Logo */}
-          <Logo
-            className="h-[clamp(9rem,25vw,22rem)] max-w-[94vw]"
-            style={{
-              margin: 'clamp(-6rem,-6vw,-2.2rem) 0 clamp(-8.5rem,-8.5vw,-3.8rem)',
-              opacity: 1,
-              transform: flashDone ? 'translateY(0) scale(1)' : 'translateY(0.4rem) scale(0.72)',
-              transition: 'transform 1.15s cubic-bezier(0.16, 1, 0.3, 1)',
-            } as React.CSSProperties}
-          />
-
+      {/* ── Conteúdo — posicionado abaixo da logo via calc ── */}
+      {/* top = logo center (34%) + metade da altura da logo + gap */}
+      <div style={{
+        position: 'absolute',
+        top: 'calc(34% + clamp(4.5rem, 12.5vw, 11rem) + clamp(1.2rem, 3vw, 2rem))',
+        left: 0, right: 0,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+        padding: '0 clamp(1rem, 5vw, 4rem)',
+        zIndex: 90,
+        opacity: phase === 'main' ? 1 : 0,
+        transform: phase === 'main' ? 'translateY(0)' : 'translateY(24px)',
+        transition: 'opacity 0.8s ease-out, transform 0.8s ease-out',
+      }}>
 
           {/* Divider */}
           <div style={{
             width: 464, height: 2, borderRadius: 999, transform: 'translateX(10px)',
-            background: 'rgba(255,255,255,0.22)',
+            background: 'rgba(255,210,0,0.25)',
             marginBottom: 'clamp(0.6rem,1vw,0.9rem)',
-            opacity: flashDone ? 1 : 0,
-            transition: flashDone ? 'opacity 0.7s 0.18s ease-out' : 'none',
           }} />
 
           {/* Subtitle */}
           <p style={{
             fontSize: 'clamp(0.8rem, 1.25vw, 0.96rem)',
-            color: 'rgba(255,255,255,0.65)',
+            color: '#ffffff',
             lineHeight: 1.65,
             margin: '0 0 clamp(0.7rem,1.2vw,1rem)',
             maxWidth: 450,
-            ...fade(0.2),
-            transform: flashDone ? 'translateY(-0.35rem)' : 'translateY(calc(12px - 0.35rem))',
+            transform: 'translateY(-0.35rem)',
           }}>
             Cursos, mini apps e benefícios exclusivos para<br />
-            <strong style={{ color: '#f0c040', fontWeight: 700 }}>organizar, aprender</strong>
+            <strong style={{ color: '#ffd200', fontWeight: 700 }}>organizar, aprender</strong>
             {' '}e{' '}
-            <strong style={{ color: '#f0c040', fontWeight: 700 }}>evoluir</strong> todos os dias.
+            <strong style={{ color: '#ffd200', fontWeight: 700 }}>evoluir</strong> todos os dias.
           </p>
 
 
@@ -557,8 +637,7 @@ export default function HomePresentation({ onNavigate }: { onNavigate: (c: Categ
             borderRadius: 16,
             overflow: 'hidden',
             display: 'flex',
-            animation: flashDone ? 'glow-breathe 3.5s ease-in-out 1s infinite' : 'none',
-            ...fade(0.42),
+            animation: phase === 'main' ? 'glow-breathe 3.5s ease-in-out 1s infinite' : 'none',
           }}>
 
             {/* Explorar Cursos */}
@@ -569,7 +648,7 @@ export default function HomePresentation({ onNavigate }: { onNavigate: (c: Categ
               style={{
                 flex: ctaHover === 'apps' ? 0.82 : 1.1,
                 position: 'relative', overflow: 'hidden',
-                background: 'linear-gradient(135deg, #b8860b 0%, #f0c040 45%, #e8b830 100%)',
+                background: 'linear-gradient(135deg, #e8a800 0%, #ffd200 50%, #f5c400 100%)',
                 border: 'none', cursor: 'pointer',
                 padding: 'clamp(0.85rem,1.5vw,1.05rem) clamp(1rem,2vw,1.4rem)',
                 display: 'flex', alignItems: 'center', gap: '0.85rem',
@@ -580,7 +659,7 @@ export default function HomePresentation({ onNavigate }: { onNavigate: (c: Categ
               <div className="cta-shimmer" style={{
                 position: 'absolute', inset: 0,
                 background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.45) 50%, transparent 65%)',
-                animation: flashDone ? 'gold-shimmer 3.2s ease-in-out 2s infinite' : 'none',
+                animation: 'gold-shimmer 3.2s ease-in-out 2s infinite',
                 pointerEvents: 'none',
               }} />
               {/* Icon */}
@@ -605,8 +684,8 @@ export default function HomePresentation({ onNavigate }: { onNavigate: (c: Categ
             {/* Seam — vertical divider com glow dourado */}
             <div style={{
               width: 1, flexShrink: 0,
-              background: 'linear-gradient(to bottom, transparent 0%, rgba(217,185,74,0.7) 40%, rgba(217,185,74,0.9) 60%, transparent 100%)',
-              boxShadow: '0 0 8px rgba(217,185,74,0.5)',
+              background: 'linear-gradient(to bottom, transparent 0%, rgba(255,210,0,0.7) 40%, rgba(255,210,0,0.9) 60%, transparent 100%)',
+              boxShadow: '0 0 8px rgba(255,210,0,0.5)',
               zIndex: 2,
             }} />
 
@@ -642,28 +721,33 @@ export default function HomePresentation({ onNavigate }: { onNavigate: (c: Categ
                 transform: ctaHover === 'apps' ? 'scale(1.15)' : 'scale(1)',
               }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="3" width="7" height="7" rx="1.5" stroke={ctaHover === 'apps' ? 'rgba(245,200,97,0.9)' : 'rgba(255,255,255,0.55)'} strokeWidth="1.6" style={{ transition: 'stroke 0.25s' }}/>
-                  <rect x="14" y="3" width="7" height="7" rx="1.5" stroke={ctaHover === 'apps' ? 'rgba(245,200,97,0.9)' : 'rgba(255,255,255,0.55)'} strokeWidth="1.6" style={{ transition: 'stroke 0.25s' }}/>
-                  <rect x="3" y="14" width="7" height="7" rx="1.5" stroke={ctaHover === 'apps' ? 'rgba(245,200,97,0.9)' : 'rgba(255,255,255,0.55)'} strokeWidth="1.6" style={{ transition: 'stroke 0.25s' }}/>
-                  <rect x="14" y="14" width="7" height="7" rx="1.5" stroke={ctaHover === 'apps' ? 'rgba(245,200,97,0.9)' : 'rgba(255,255,255,0.55)'} strokeWidth="1.6" style={{ transition: 'stroke 0.25s' }}/>
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" stroke={ctaHover === 'apps' ? 'rgba(255,210,0,0.95)' : 'rgba(214,232,242,0.6)'} strokeWidth="1.6" style={{ transition: 'stroke 0.25s' }}/>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" stroke={ctaHover === 'apps' ? 'rgba(255,210,0,0.95)' : 'rgba(214,232,242,0.6)'} strokeWidth="1.6" style={{ transition: 'stroke 0.25s' }}/>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" stroke={ctaHover === 'apps' ? 'rgba(255,210,0,0.95)' : 'rgba(214,232,242,0.6)'} strokeWidth="1.6" style={{ transition: 'stroke 0.25s' }}/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" stroke={ctaHover === 'apps' ? 'rgba(255,210,0,0.95)' : 'rgba(214,232,242,0.6)'} strokeWidth="1.6" style={{ transition: 'stroke 0.25s' }}/>
                 </svg>
               </div>
               <div style={{ textAlign: 'left', position: 'relative', zIndex: 1 }}>
-                <div style={{ fontSize: 'clamp(0.82rem,1.25vw,0.96rem)', fontWeight: 800, color: ctaHover === 'apps' ? '#fff' : 'rgba(255,255,255,0.82)', lineHeight: 1.2, transition: 'color 0.25s' }}>Ver Mini Apps</div>
-                <div style={{ fontSize: 'clamp(0.6rem,0.85vw,0.7rem)', color: ctaHover === 'apps' ? 'rgba(217,185,74,0.6)' : 'rgba(255,255,255,0.3)', fontWeight: 500, marginTop: 2, transition: 'color 0.25s' }}>Acessar ferramentas</div>
+                <div style={{ fontSize: 'clamp(0.82rem,1.25vw,0.96rem)', fontWeight: 800, color: '#ffffff', lineHeight: 1.2, transition: 'color 0.25s' }}>Ver Mini Apps</div>
+                <div style={{ fontSize: 'clamp(0.6rem,0.85vw,0.7rem)', color: ctaHover === 'apps' ? 'rgba(255,210,0,0.65)' : 'rgba(255,255,255,0.55)', fontWeight: 500, marginTop: 2, transition: 'color 0.25s' }}>Acessar ferramentas</div>
               </div>
             </button>
 
           </div>
 
-        </div>
-      </div>
+      </div>{/* end conteúdo */}
 
       <style>{`
-        @media (prefers-reduced-motion: no-preference) {
-          @keyframes home-up   { from { transform: translateY(0); } to { transform: translateY(-50%); } }
-          @keyframes home-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+        @keyframes panel-pulse {
+          0%   { opacity: 0.04; }
+          18%  { opacity: 0.52; }
+          44%  { opacity: 0.10; }
+          70%  { opacity: 0.48; }
+          90%  { opacity: 0.06; }
+          100% { opacity: 0.04; }
+        }
 
+        @media (prefers-reduced-motion: no-preference) {
           @keyframes gold-shimmer {
             0%   { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
             8%   { opacity: 1; }
@@ -672,9 +756,238 @@ export default function HomePresentation({ onNavigate }: { onNavigate: (c: Categ
           }
 
           @keyframes glow-breathe {
-            0%, 100% { box-shadow: 0 0 0 1px rgba(217,185,74,0.18), 0 12px 48px rgba(0,0,0,0.55); }
-            50%       { box-shadow: 0 0 0 1px rgba(217,185,74,0.42), 0 0 52px rgba(217,185,74,0.14), 0 12px 48px rgba(0,0,0,0.55); }
+            0%, 100% { box-shadow: 0 0 0 1px rgba(255,210,0,0.18), 0 12px 48px rgba(0,0,0,0.55); }
+            50%       { box-shadow: 0 0 0 1px rgba(255,210,0,0.42), 0 0 52px rgba(255,210,0,0.14), 0 12px 48px rgba(0,0,0,0.55); }
           }
+
+          @keyframes logo-enter {
+            0%   { opacity: 0; transform: scale(0.91) translateY(6px); filter: blur(4px); }
+            60%  { opacity: 1; filter: blur(0px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); }
+          }
+
+          @keyframes copy-left-cut {
+            0%, 10% { clip-path: inset(0 100% 0 0); transform: translateX(-32px); opacity: 0; }
+            18%, 44% { clip-path: inset(0 0 0 0); transform: translateX(0); opacity: 1; }
+            52%, 100% { clip-path: inset(0 0 0 100%); transform: translateX(28px); opacity: 0; }
+          }
+
+          @keyframes copy-right-cut {
+            0%, 34% { clip-path: inset(0 0 0 100%); transform: translateX(28px); opacity: 0; }
+            41%, 67% { clip-path: inset(0 0 0 0); transform: translateX(0); opacity: 1; }
+            74%, 100% { clip-path: inset(0 100% 0 0); transform: translateX(-24px); opacity: 0; }
+          }
+
+        }
+
+        /* ── Cinematic letterbox ── */
+        .letterbox {
+          position: absolute;
+          left: 0;
+          right: 0;
+          height: 9vh;
+          background: rgba(0,0,0,0.95);
+          z-index: 5;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        .letterbox-top {
+          top: 0;
+          justify-content: flex-end;
+          animation: letterbox-drop 0.6s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        .letterbox-bottom {
+          bottom: 0;
+          justify-content: flex-start;
+          animation: letterbox-rise 0.6s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        .letterbox-rule {
+          width: 100%;
+          height: 1px;
+          flex-shrink: 0;
+          background: linear-gradient(90deg, transparent 0%, rgba(217,185,74,0.45) 18%, rgba(217,185,74,0.85) 50%, rgba(217,185,74,0.45) 82%, transparent 100%);
+        }
+
+        .lb-ticker {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+        }
+
+        .lb-ticker span {
+          display: block;
+          white-space: nowrap;
+          font-size: clamp(0.4rem, 0.56vw, 0.52rem);
+          letter-spacing: 0.4em;
+          color: rgba(217,185,74,0.38);
+          font-weight: 700;
+          animation: ticker-l 32s linear infinite;
+        }
+
+        .lb-ticker-rev span {
+          animation: ticker-r 36s linear infinite;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes letterbox-drop {
+            from { transform: translateY(-100%); }
+            to   { transform: translateY(0); }
+          }
+          @keyframes letterbox-rise {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
+          }
+          @keyframes ticker-l {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+          }
+          @keyframes ticker-r {
+            from { transform: translateX(-50%); }
+            to   { transform: translateX(0); }
+          }
+        }
+
+        .home-logo-layer {
+          position: fixed;
+          left: 50%;
+          top: 50%;
+          z-index: 90;
+          pointer-events: none;
+          transform-origin: center;
+          transition:
+            left 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+            top 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 1.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .home-logo-layer.is-intro {
+          transform: translate3d(-50%, -50%, 0);
+        }
+
+        .home-logo-layer.is-intro img {
+          animation: logo-intro-pulse 1.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .home-logo-layer.is-final {
+          transform: translate3d(-50%, -50%, 0);
+        }
+
+        /* sweep removed — too theatrical */
+
+        .cinematic-copy {
+          position: absolute;
+          z-index: 8;
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          color: white;
+          text-shadow: 0 4px 28px #000;
+        }
+
+        .cinematic-copy span { color: rgba(217,185,74,0.88); font-size: clamp(0.5rem, 0.68vw, 0.62rem); letter-spacing: 0.42em; font-weight: 800; text-transform: uppercase; }
+        .cinematic-copy strong { font-size: clamp(1.2rem, 2.8vw, 2.8rem); letter-spacing: -0.03em; line-height: 0.92; font-weight: 900; }
+        .cinematic-copy-left  { left: clamp(2rem, 6vw, 6rem); top: 16vh; animation: copy-left-cut 2s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 0.15s; }
+        .cinematic-copy-right { right: clamp(2rem, 6vw, 6rem); bottom: 16vh; text-align: right; animation: copy-right-cut 2s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 0.55s; }
+
+        @media (max-width: 640px) {
+          .letterbox { height: 7vh; }
+          .cinematic-copy-right { bottom: 11vh; }
+          .cinematic-copy-left { top: 11vh; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .cinematic-copy, .letterbox, .lb-ticker span { animation-duration: 0.01ms !important; }
+        }
+
+
+        /* ── Gold dust particles ── */
+        .particles-layer {
+          position: absolute;
+          inset: 0;
+          z-index: 4;
+          pointer-events: none;
+          overflow: hidden;
+        }
+
+        .particle {
+          position: absolute;
+          border-radius: 50%;
+          background: rgba(240, 192, 64, 0.6);
+          animation: particle-rise linear infinite;
+          opacity: 0;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes particle-rise {
+            0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+            18%  { opacity: 0.5; }
+            55%  { opacity: 0.2; }
+            82%  { opacity: 0.38; }
+            100% { opacity: 0; transform: translateY(-55px) scale(1.4); }
+          }
+        }
+
+        /* ── Convergence + tagline reveal ── */
+        .convergence-overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 10;
+          background: rgba(0,0,0,0);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.85s ease-in-out, background 1.5s ease-in-out;
+        }
+
+        .convergence-overlay.is-active {
+          opacity: 1;
+          background: rgba(8,6,3,0.88);
+        }
+
+        .convergence-overlay::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: clamp(18rem, 48vw, 42rem);
+          height: clamp(18rem, 48vw, 42rem);
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(255,215,0,0.11) 0%, transparent 68%);
+          opacity: 0;
+          transition: opacity 1.3s ease 0.35s;
+        }
+
+        .convergence-overlay.is-active::before {
+          opacity: 1;
+        }
+
+        .tagline-text {
+          position: absolute;
+          bottom: 26%;
+          left: 50%;
+          transform: translateX(-50%);
+          margin: 0;
+          font-size: clamp(0.82rem, 1.8vw, 1.3rem);
+          color: rgba(217,185,74,0);
+          font-weight: 400;
+          letter-spacing: 0.2em;
+          text-align: center;
+          white-space: nowrap;
+          text-shadow: 0 2px 32px rgba(200,160,0,0.4);
+          transition: color 1.5s ease 0.5s;
+        }
+
+        .convergence-overlay.is-active .tagline-text {
+          color: rgba(217,185,74,0.92);
+        }
+
+        @media (max-width: 640px) {
+          .tagline-text { white-space: normal; width: 80vw; text-align: center; }
         }
       `}</style>
     </div>
