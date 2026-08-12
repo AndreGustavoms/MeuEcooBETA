@@ -1,0 +1,4 @@
+[submodule "system-design"]
+	path = system-design
+	url = https://github.com/AndreGustavoms/Doktor-SystemDesign.git
+	branch = main

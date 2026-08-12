@@ -7,7 +7,7 @@ ou conteúdo de terceiros.
 
 ## Stack
 
-Segue a stack padrão do [Doktor System Design](./doktor%20SystemDesign/docs/STACK-E-ARQUITETURA.md):
+Segue a stack padrão do [Doktor System Design](https://github.com/AndreGustavoms/Doktor-SystemDesign/blob/main/docs/STACK-E-ARQUITETURA.md):
 
 - **React 19** + **TypeScript**
 - **Vite** (build e dev server)
@@ -28,6 +28,13 @@ A página é composta por: **Hero** (navbar + chamada + captação de e-mail), f
 apenas front-end (valida o formato e confirma localmente) — não há backend.
 
 ## Como rodar
+
+O `system-design/` é um submodule — um clone comum traz a pasta vazia:
+
+```bash
+git clone --recurse-submodules https://github.com/AndreGustavoms/MeuEcooBETA.git
+# ou, se já clonou:  git submodule update --init
+```
 
 ```bash
 npm install
