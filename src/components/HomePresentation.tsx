@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Category } from '../data/catalog';
 import Logo from './Logo';
 import { publicAsset } from '../lib/publicAsset';
@@ -42,6 +42,15 @@ const zoomOrigins: [number, number][] = [
 ];
 const easeInOut = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
 
+/*
+ * Animação de abertura da versão anterior da home. O redesign de
+ * 505d913 (grid cinematográfico) deixou de montá-la, mas o componente
+ * fica aqui porque as imagens de flash-native/ que ele consome
+ * continuam versionadas — remover um sem o outro deixaria lixo dos dois
+ * lados. Para reativar, monte <FlashbackOverlay onDone={...} /> antes
+ * do conteúdo da home.
+ */
+// @ts-expect-error -- declarado de propósito sem uso; ver comentário acima.
 function FlashbackOverlay({ onDone }: { onDone: () => void }) {
   const [dissolving, setDissolving] = useState(false);
   const [canvasReady, setCanvasReady] = useState(false);
